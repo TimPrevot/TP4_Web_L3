@@ -3,7 +3,7 @@ const router = express.Router()
 const articles = require('../data/articles.js')
 
 class Panier {
-  constructor () {
+  constructor() {
     this.createdAt = new Date()
     this.updatedAt = new Date()
     this.articles = []
@@ -44,18 +44,18 @@ router.get('/panier', (request, response) => {
 router.post('/panier', (request, response) => {
   const articleId = parseInt(request.body.id)
   const articleQuantity = parseInt(request.body.quantity)
-  const articleExists = articles.find(article => article.id == articleId) != undefined
+  const articleExists = articles.find(article => article.id === articleId) != undefined
   const quantityIsPositive = articleQuantity > 0
-  const articleIsAlreadyInCart = request.session.panier.articles.find(article => article.id == articleId) != undefined
+  const articleIsAlreadyInCart = request.session.panier.articles.find(article => article.id === articleId) != undefined
 
-  if (articleExists && quantityIsPositive && articleIsAlreadyInCart){
+  if (articleExists && quantityIsPositive && articleIsAlreadyInCart) {
     request.session.panier.articles.push({
       id: articleId,
       quantity: articleQuantity
     })
     response.json(request.session.panier)
   } else {
-    response.status(400).json({ message : 'Invalid parameters' })
+    response.status(400).json({ message: 'Invalid parameters' })
   }
 })
 
@@ -71,16 +71,25 @@ router.post('/panier/pay', (req, res) => {
  * Cette route doit permettre de changer la quantité d'un article dans le panier
  * Le body doit contenir la quantité voulue
  */
-router.put(parseArticle, '/panier/:articleId', (request, response) => {
+router.put('/panier/:articleId', parseArticle, (request, response) => {
   const articleQuantity = parseInt(request.body.quantity)
-  console.log('articleId', request.articleId)
-  console.log('article', request.article)
+  
+  const articleInCart = request.session.panier.articles.find(article => article.id === request.articleId)
+
+  if (articleInCart === undefined || articleQuantity < 1){
+    response.status(400).json({ message : 'Invalid parameters' })
+  } else {
+    articleInCart.quantity += articleQuantity
+    response.json(request.session.panier)
+  }
 })
 
 /*
  * Cette route doit supprimer un article dans le panier
  */
 router.delete('/panier/:articleId', (req, res) => {
+  
+  
   res.status(501).json({ message: 'Not implemented' })
 })
 
@@ -106,9 +115,9 @@ router.post('/article', (req, res) => {
 
   // vérification de la validité des données d'entrée
   if (typeof name !== 'string' || name === '' ||
-      typeof description !== 'string' || description === '' ||
-      typeof image !== 'string' || image === '' ||
-      isNaN(price) || price <= 0) {
+    typeof description !== 'string' || description === '' ||
+    typeof image !== 'string' || image === '' ||
+    isNaN(price) || price <= 0) {
     res.status(400).json({ message: 'bad request' })
     return
   }
@@ -133,7 +142,7 @@ router.post('/article', (req, res) => {
  * - DELETE /article/:articleId
  * Comme ces trois routes ont un comportement similaire, on regroupe leurs fonctionnalités communes dans un middleware
  */
-function parseArticle (req, res, next) {
+function parseArticle(req, res, next) {
   const articleId = parseInt(req.params.articleId)
 
   // si articleId n'est pas un nombre (NaN = Not A Number), alors on s'arrête
