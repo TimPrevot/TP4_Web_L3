@@ -1,1 +1,7 @@
-# TP4_Web_L3
+# Install
+
+`npm install`
+
+# Run
+
+`npm start`
