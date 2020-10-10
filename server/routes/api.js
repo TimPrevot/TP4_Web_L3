@@ -88,10 +88,16 @@ router.put('/panier/:articleId', parseArticle, (request, response) => {
 /*
  * Cette route doit supprimer un article dans le panier
  */
-router.delete('/panier/:articleId', (req, res) => {
-  
-  
-  res.status(501).json({ message: 'Not implemented' })
+router.delete('/panier/:articleId', (request, response) => {
+  const articleInCart = request.session.panier.articles.find(article => article.id === articleId)
+
+  if (articleInCart === undefined){
+    response.status(400).json({ message: 'Invalid parameters' })
+  } else {
+    const indexToDelete = request.session.panier.articles.findIndex(article => article.id === request.articleId)
+    request.session.panier.splice(indexToDelete, 1)
+    response.json(request.session.panier)
+  }
 })
 
 
