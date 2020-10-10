@@ -85,7 +85,11 @@ router.put('/panier/:articleId', parseArticle, (request, response) => {
 })
 
 
+
+
 /*
+
+
  * Cette route doit supprimer un article dans le panier
  */
 router.delete('/panier/:articleId', (request, response) => {
