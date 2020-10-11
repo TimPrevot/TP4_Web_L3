@@ -48,7 +48,7 @@ router.post('/panier', (request, response) => {
   const quantityIsPositive = articleQuantity > 0
   const articleIsAlreadyInCart = request.session.panier.articles.find(article => article.id === articleId) != undefined
 
-  if (articleExists && quantityIsPositive && articleIsAlreadyInCart) {
+  if (articleExists && quantityIsPositive && !articleIsAlreadyInCart) {
     request.session.panier.articles.push({
       id: articleId,
       quantity: articleQuantity

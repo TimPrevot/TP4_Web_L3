@@ -36,13 +36,34 @@ var app = new Vue({
       const response = await axios.post('/api/panier', parameters) 
       this.panier.articles.push(response.data)
     },
+    async removeFromPanier (articleId) {
+      const response = await axios.delete('/api/panier' + articleId)
+      const index = this.panier.articles.findIndex(article => article.id === articleId)
+      this.panier.articles.splice(index, 1)
+    },
     async addArticle (article) {
       const res = await axios.post('/api/article', article)
       this.articles.push(res.data)
     },
+    async addOne (articleId) {
+      const index = this.panier.articles.findIndex(a => a.id === articleId)
+      const quantity = this.panier.articles[index].quantity + 1
+      const response = await axios.put('/api/panier/' + articleId, { quantity })
+      this.panier.articles[index].quantity = quantity
+    },
+    async removeOne (articleId) {
+      const index = this.panier.articles.findIndex(a => a.id === articleId)
+      const quantity = this.panier.articles[index].quantity - 1
+      if (!quantity){
+        this.removeFromPanier(articleId)
+        return
+      }
+      const response = await axios.put('/api/panier/' + articleId, { quantity })
+      this.panier.articles[index].quantity = quantity
+    },
     async updateArticle (newArticle) {
       await axios.put('/api/article/' + newArticle.id, newArticle)
-      const article = this.articles.find(a => a.id === newArticle.id)
+      const article = this.articles.find(article => article.id === newArticle.id)
       article.name = newArticle.name
       article.description = newArticle.description
       article.image = newArticle.image
