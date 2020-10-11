@@ -8,7 +8,7 @@
       </div>
       <div class="articleContent">
         <div class="articleTitle">
-          <h2>{{ articles[article.id - 1].name }} - {{ articles[article.id - 1].price }}</h2>
+          <h2>{{ articles[article.id - 1].name }} - {{ articles[article.id - 1].price }}€</h2>
         </div>
         <p>{{ articles[article.id - 1].description }}</p>
       </div>
