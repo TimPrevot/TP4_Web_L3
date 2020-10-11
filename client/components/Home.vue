@@ -9,6 +9,8 @@
         <div class="article-title">
           <h2>{{ article.name }} - {{ article.price }}€</h2>
           <div>
+          <button @click="addToPanier(article.id)">Ajouter au panier</button>
+          <button @click="removeFromPanier(article.id)"></button>
           <button @click="deleteArticle(article.id)">Supprimer</button>
           <button @click="editArticle(article)">Modifier</button>
           </div>
@@ -62,6 +64,9 @@ module.exports = {
     }
   },
   methods: {
+    addToPanier(articleId){
+      this.$emit('add-to-panier', articleId)
+    },
     addArticle () {
       this.$emit('add-article', this.newArticle)
     },

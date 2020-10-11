@@ -22,6 +22,7 @@
             <router-view
               :articles="articles"
               :panier="panier"
+              @add-to-panier="addToPanier"
               @add-article="addArticle"
               @delete-article="deleteArticle"
               @update-article="updateArticle"
