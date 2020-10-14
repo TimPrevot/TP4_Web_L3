@@ -2,6 +2,17 @@ const express = require('express')
 const router = express.Router()
 const articles = require('../data/articles.js')
 
+const bcrypt = require('bcrypt')
+const { Client } = require('pg')
+const client = new Client({
+  user: 'postgres',
+  host: 'localhost',
+  password: 'abcd1234',
+  database: 'TP5'
+})
+
+client.connect()
+
 class Panier {
   constructor() {
     this.createdAt = new Date()
@@ -44,16 +55,16 @@ router.get('/panier', (request, response) => {
 router.post('/panier', (request, response) => {
   const articleId = parseInt(request.body.id)
   const articleQuantity = parseInt(request.body.quantity)
-  const articleExists = articles.find(article => article.id === articleId) != undefined
+  const articleExists = articles.find(article => article.id === articleId) !== undefined
   const quantityIsPositive = articleQuantity > 0
-  const articleIsAlreadyInCart = request.session.panier.articles.find(article => article.id === articleId) != undefined
+  const articleIsAlreadyInCart = request.session.panier.articles.find(article => article.id === articleId) !== undefined
 
   if (articleExists && quantityIsPositive && !articleIsAlreadyInCart) {
-    request.session.panier.articles.push({
+    request.session.panier.articles.push(articles.find(article => article.id === articleId))
+    response.json({
       id: articleId,
       quantity: articleQuantity
     })
-    response.json(request.session.panier)
   } else {
     response.status(400).json({ message: 'Invalid parameters' })
   }
@@ -79,12 +90,31 @@ router.put('/panier/:articleId', parseArticle, (request, response) => {
   if (articleInCart === undefined || articleQuantity < 1){
     response.status(400).json({ message : 'Invalid parameters' })
   } else {
-    articleInCart.quantity += articleQuantity
+    articleInCart.quantity = articleQuantity
     response.json(request.session.panier)
   }
 })
 
-
+router.post('/register', (request, response) => {
+  const email = request.session.user.email
+  const password = request.session.user.password
+  const result = await client.query({
+    text: 'SELECT email FROM users',
+    values: [10]
+  })
+  for (let i = 0; i < result.rows.length; i++) {
+    const element = result.rows[i];
+    if (email === i){
+      response.status(400).json({ message: 'This email is already being used' })
+    } else {
+      const hash = await bcrypt.hash(password, 10)
+      const ajout = await client.query({
+        text: 'INSERT INTO users (id, email, password)',
+        values: (rows.length, email, password)
+      })
+    }
+  }
+})
 
 
 /*
