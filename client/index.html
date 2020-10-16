@@ -16,6 +16,10 @@
             <nav>
               <router-link to='/'>Accueil</router-link>
               <router-link to='/panier'>Panier</router-link>
+              <router-link to='/register'>Register</router-link>
+              <router-link to='/login'>Log in</router-link>
+              
+
             </nav>
           </header>
           <main>
@@ -29,6 +33,9 @@
               @update-article="updateArticle"
               @add-one="addOne"
               @remove-one="removeOne"
+              @add-client="addClient"
+              @connect-client="connectClient"
+
             ></router-view>
           </main>
         </div>

@@ -1,9 +1,13 @@
 const Home = window.httpVueLoader('./components/Home.vue')
 const Panier = window.httpVueLoader('./components/Panier.vue')
+const Register = window.httpVueLoader('./components/Register.vue')
+const Login = window.httpVueLoader('./components/Login.vue')
 
 const routes = [
   { path: '/', component: Home },
   { path: '/panier', component: Panier },
+  { path: '/register', component: Register },
+  { path: '/login', component: Login },
 ]
 
 const router = new VueRouter({
@@ -74,6 +78,22 @@ var app = new Vue({
       const index = this.articles.findIndex(a => a.id === articleId)
       this.articles.splice(index, 1)
     },
-    
+
+    async addClient (client) {
+      const res3 = await axios.post('/api/register', client)
+      this.connectClient(client)
+    },
+    async connectClient (client) {
+      const res3 = await axios.post('/api/login', client)
+      this.client = res3.data
+    },
+    isUserConnected () {
+      const res4 = await axios.get('/me')
+      if (!res4){
+        return 0
+      } else {
+        return 1
+      }
+    }
   }
 })

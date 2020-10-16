@@ -4,10 +4,11 @@ const articles = require('../data/articles.js')
 
 const bcrypt = require('bcrypt')
 const { Client } = require('pg')
+const { request } = require('express')
 const client = new Client({
   user: 'postgres',
   host: 'localhost',
-  password: 'abcd1234',
+  password: 'q7ux',
   database: 'TP5'
 })
 
@@ -20,6 +21,113 @@ class Panier {
     this.articles = []
   }
 }
+
+
+// TP5
+
+// LOGIN IMPLEMENTATION
+
+router.post('/register',async (req, res) => {
+  const password = req.body.password
+  const email = req.body.email
+// SELECT email FROM users u WHERE u.email = email;
+  const hash = await bcrypt.hash(password, 10)
+  const result = await client.query({
+    text: "SELECT email FROM users WHERE email = $1;",
+    values: [email]
+}).catch((error) => {
+  const result = [null]
+  console.log({message:"Free"})
+
+})
+
+
+
+  if ( result.rows != '' ) {
+      res.status(400).json({ message: 'Email deja present' })
+      return
+  } else {
+
+      
+          const sql = "INSERT INTO users(email,password) VALUES($1,$2);"
+           await client.query({
+              text: sql,
+              values: [email, hash] // ici name et description ne sont pas concaténées à notre requête
+          }).catch((error)=>{
+            console.log({message:"Problème"})
+          })
+
+  }
+
+  res.json('done')
+  
+
+
+
+})
+
+// LOGIN
+
+router.post('/login',async (req, res) => {
+const password = req.body.password
+const email = req.body.email
+
+const result = await client.query({
+    text: "SELECT email , password FROM users WHERE email = $1 ;",
+    values: [email]
+  }).catch((error) => {
+const result = [null]
+console.log({message:"Libre"})
+
+})
+
+//console.log(result.rows[0].email)
+
+
+if ( result.rows[0].email !== email && !(await bcrypt.compare(password,result.rows[0].password))) {
+
+    
+    res.status(400).json({ message: 'l Email ou le mot de passe n est pas correct ' })
+    return
+}else if (req.session.userID !== undefined){
+  res.status(401).json({ message: 'Already Connected' })
+}
+ else {
+  
+        const sql = "SELECT id FROM users WHERE email = $1 ;"
+        req.session.userID = await client.query({
+            text: sql,
+            values: [email] // ici name et description ne sont pas concaténées à notre requête
+        }).catch((error)=>{
+          console.log({message:"Probleme"})
+        })
+
+        //console.log(req.session.userID.rows[0].id)
+
+
+}
+
+res.json('done')
+
+
+
+
+})
+
+router.get('/me', (req, res) => {
+
+if(req.session.userID){
+  console.log(req.session.userID.rows[0].id)
+  res.json(req.session.userID)
+}else{
+  res.status(401).json({ message: 'Non connecté' })
+}
+
+})
+
+
+//FIN TP5
+
 
 /**
  * Dans ce fichier, vous trouverez des exemples de requêtes GET, POST, PUT et DELETE
@@ -74,9 +182,18 @@ router.post('/panier', (request, response) => {
  * Cette route doit permettre de confirmer un panier, en recevant le nom et prénom de l'utilisateur
  * Le panier est ensuite supprimé grâce à req.session.destroy()
  */
-router.post('/panier/pay', (req, res) => {
-  res.status(501).json({ message: 'Not implemented' })
-})
+router.post('/panier/pay',  (request, response) => {
+  if (){
+
+  }
+  
+  const firstName = request.body.firstname;
+  const lastName = request.body.lastname;
+
+  request.session.destroy();
+
+  response.json({ message: `Merci ${firstName} ${lastName} pour votre achat`});
+});
 
 /*
  * Cette route doit permettre de changer la quantité d'un article dans le panier
@@ -95,26 +212,6 @@ router.put('/panier/:articleId', parseArticle, (request, response) => {
   }
 })
 
-router.post('/register', (request, response) => {
-  const email = request.session.user.email
-  const password = request.session.user.password
-  const result = await client.query({
-    text: 'SELECT email FROM users',
-    values: [10]
-  })
-  for (let i = 0; i < result.rows.length; i++) {
-    const element = result.rows[i];
-    if (email === i){
-      response.status(400).json({ message: 'This email is already being used' })
-    } else {
-      const hash = await bcrypt.hash(password, 10)
-      const ajout = await client.query({
-        text: 'INSERT INTO users (id, email, password)',
-        values: (rows.length, email, password)
-      })
-    }
-  }
-})
 
 
 /*
